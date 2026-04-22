@@ -1,184 +1,88 @@
-# GoLedger Challenge - QA Edition
+# GoLedger QA Challenge — Douglas Graeff
 
-In this challenge you will interact with a Hyperledger Fabric network through an already provided GoLang API and React front-end. Both the API and the front-end have been intentionally left with a number of issues and bugs. Your goal is to run both applications, explore their behaviour, and report every finding.
-
-We recommend a UNIX-like machine (Linux/macOS).
-
-## Prerequisites
-
-| Tool | Version |
-|---|---|
-| [Docker](https://www.docker.com/) + [Docker Compose](https://docs.docker.com/compose/) | Latest |
-| [Go](https://golang.org/dl/) | 1.21+ |
-| [Node.js](https://nodejs.org/) | 18+ |
-
-## Instructions
-
-- Fork the repository [https://github.com/goledgerdev/goledger-challenge-qa](https://github.com/goledgerdev/goledger-challenge-qa)
-  - Fork it, do **NOT** clone it, since you will need to send us your forked repository.
-  - If you **cannot** fork it, create a **private** repository and give access to `andremacedopv` and `lucas-campelo`.
-- Follow the setup steps below to run the API and the web application.
-- Explore the running application and document every bug or unexpected behaviour you find.
-
-## Repository structure
-
-```
-.
-├── api/        # GoLang REST API (Gin) — proxies calls to the Hyperledger Fabric CCAPI
-└── web/        # React front-end (Vite + TypeScript) — interacts with the API above
-```
+> Este repositório é um fork do [GoLedger QA Challenge](https://github.com/GoLedgerDev/goledger-challenge-qa).
+> O trabalho entregue está documentado abaixo e nos arquivos `BUG_REPORT.md`, `README_DOUGLAS.md`, e nos testes automatizados em `/web/cypress`.
 
 ---
 
-## Undertanding the underlying Hyperledger Fabric Network
+## O que foi feito
 
-The data are obtained using a rest server at this address, which stores the CCAPI, that communicates with the chaincode: `http://ec2-54-196-90-7.compute-1.amazonaws.com`
+Recebi o desafio, subi o ambiente localmente via Docker, explorei a aplicação de forma estruturada e entreguei:
 
-Also, a Swagger with the endpoints specifications for the operations is provided at this address: `http://ec2-54-196-90-7.compute-1.amazonaws.com/api-docs/index.html`.
-
-Note: The API is protected with Basic Auth. The credentials were sent to you by email.
-
-Tip: execute each operation in the Swagger for information on payload format and endpoint addresses. See examples below.
-
-### Get Schema
-Execute a `getSchema` operation to get information on which asset types are available. Don't forget to authenticate with the credentials provided.
-
-```bash
-curl -X POST "http://ec2-54-196-90-7.compute-1.amazonaws.com/api/query/getSchema" -H "accept: */*" -H "Content-Type: application/json"
-```
-
-Execute a getSchema with a payload to get more details on a particula asset.
-
-```bash
-curl -X POST "http://ec2-54-196-90-7.compute-1.amazonaws.com/api/query/getSchema" -H "accept: */*" -H "Content-Type: application/json" -d "{\"assetType\":\"book\"}"
-```
-Tip: the same can be done with transactions, using the `getTx` endpoint.
-
-## Running the API
-
-The API is a Go/Gin server that sits between the front-end and a Hyperledger Fabric CCAPI deployment. It exposes a Swagger UI so you can explore the available endpoints.
-
-### 1. Configure environment variables
-
-Copy the example env file and fill in the values:
-
-```bash
-cp api/.env.example api/.env
-```
-
-Open `api/.env` and set the three variables:
-
-```env
-# URL of the Hyperledger Fabric CCAPI
-CCAPI_ORG_URL=http://ec2-54-196-90-7.compute-1.amazonaws.com
-
-# HTTP Basic Auth credentials for the CCAPI
-CCAPI_AUTH_USERNAME=<username_sent_by_email>
-CCAPI_AUTH_PASSWORD=<password_sent_by_email>
-```
-
-> **Tip:** The CCAPI URL and credentials will be sent to you by e-mail. Keep them private and do not commit them to your repository.
-
-### 2. Start the API
-
-**Using Docker (recommended):**
-
-```bash
-cd api
-docker-compose up --build
-```
-
-**Without Docker:**
-
-```bash
-cd api
-go run .
-```
-
-The server will start on **http://localhost:8080**.
-
-### 3. Explore the Swagger UI
-
-A full OpenAPI specification is bundled with the API. Open your browser at:
-
-```
-http://localhost:8080/docs/index.html
-```
-
-### Default API credentials
-
-The API ships with two pre-seeded user accounts for testing:
-
-| Username | Password |
-|---|---|
-| `admin` | `admin123` |
-| `user1` | `pass123` |
-
-Use the `POST /auth/login` endpoint to obtain a JWT token, then click **Authorize** in the Swagger UI and paste the token to authenticate subsequent requests.
+- **12 bugs documentados** com severidade, passos para reproduzir, comportamento esperado vs. real, evidência em imagem e proposta de correção
+- **15 testes automatizados com Cypress** cobrindo os fluxos principais da aplicação
+- **Testes de API com Postman** validando endpoints de autenticação, books, persons e libraries
 
 ---
 
-## Running the Web
+## Resumo dos Bugs Encontrados
 
-The front-end is a React SPA that talks to the API above.
+| ID | Título | Componente | Severidade |
+|---|---|---|---|
+| BUG-001 | Botão "Next" exibido sem resultados na busca | Web | High |
+| BUG-002 | Chamadas desnecessárias à API ao paginar sem resultados | Web / API | High |
+| BUG-003 | Favicon ausente gera erro 404 no console | Web | Low |
+| BUG-004 | Criação de livro retorna 401 mesmo com usuário logado | Web / API | **Critical** |
+| BUG-005 | Mensagem de erro genérica ao falhar na criação de livro | Web | Medium |
+| BUG-006 | Mensagem técnica interna da API exibida na tela Persons | Web | High |
+| BUG-007 | Mensagem técnica ao registrar CPF já existente | Web | High |
+| BUG-008 | Validação de CPF inconsistente entre frontend e API | Web | Medium |
+| BUG-009 | Erros técnicos exibidos automaticamente ao carregar Libraries | Web | High |
+| BUG-010 | Mensagens técnicas internas expostas em Libraries | Web | High |
+| BUG-011 | Nenhum feedback ao usuário após criar biblioteca | Web | Medium |
+| BUG-012 | Logout não invalida sessão — token permanece ativo | Web | **Critical** |
 
-### 1. Configure environment variables
+📄 [Ver relatório completo → BUG_REPORT.md](./BUG_REPORT.md)
+
+---
+
+## Testes Automatizados — Cypress
+
+### Cobertura
+
+| Área | Testes | Status |
+|---|---|---|
+| Autenticação (login/logout) | 4 | ✅ Passando |
+| Books (listagem, busca, paginação) | 4 | ✅ Passando |
+| Persons (cadastro, validações) | 4 | ✅ Passando |
+| Libraries (carregamento, criação) | 3 | ✅ Passando |
+| **Total** | **15** | **✅ 15/15** |
+
+### Como rodar os testes
+
+**Pré-requisitos:** Node.js 18+, Docker
 
 ```bash
-cp web/.env.example web/.env
-```
+# 1. Suba o ambiente
+cd api && docker-compose up --build -d
+cd ../web && npm install && npm run dev
 
-If the API is running on a non-default address, edit `web/.env`:
-
-```env
-VITE_API_URL=http://localhost:8080
-```
-
-### 2. Install dependencies and start the dev server
-
-```bash
+# 2. Em outro terminal, rode os testes
 cd web
-npm install
-npm run dev
+npx cypress run
+
+# Ou abra a interface visual
+npx cypress open
 ```
 
-The application will be available at **http://localhost:3000**.
-
 ---
 
-## The Challenge
+## Stack utilizada
 
-### Main deliverable — Bug Report
-
-Your primary deliverable is a written bug report. It should be submitted as a **Markdown (`.md`) or PDF file** committed to your forked repository.
-
-For **each bug or issue found**, the report must include:
-
-| Field | Description |
+| Ferramenta | Uso |
 |---|---|
-| **ID** | A unique identifier for the bug (e.g. `BUG-001`) |
-| **Title** | A short, descriptive title |
-| **Component** | Which part of the system is affected (`API` or `Web`) |
-| **Endpoint / Page** | The specific API endpoint or UI page where the issue occurs |
-| **Severity** | `Critical` / `High` / `Medium` / `Low` |
-| **Description** | What the bug is and why it is incorrect |
-| **Steps to Reproduce** | Step-by-step instructions to trigger the issue |
-| **Expected Behaviour** | What the correct behaviour should be |
-| **Actual Behaviour** | What actually happens |
-| **Proposed Fix** | A concrete suggestion for how the issue could be resolved (code snippet optional but appreciated) |
-
-> **Tip:** Pay close attention to authentication flows, HTTP status codes, pagination logic, data submitted to the blockchain, and how sensitive information is handled.
-
-### Optional deliverable — Automated Tests
-
-As an optional but valued deliverable, you may submit automated tests that cover the available systems. These tests should demonstrate the incorrect behaviour and/or verify the expected behaviour.
-
-Any testing suite is allowed.
-
-Place the test files inside the respective `api/` or `web/` directory and include instructions on how to run them.
+| Cypress | Testes E2E automatizados |
+| Postman | Testes de API |
+| Docker | Ambiente local |
+| JavaScript | Testes Cypress |
 
 ---
 
-## Complete the challenge
+## Observação sobre uso de IA
 
-To complete the challenge, send us the link to your **forked repository**. Make sure your bug report is committed and that any optional test code includes run instructions.
+Este desafio foi realizado com auxílio ativo de IA (Claude — Anthropic) como ferramenta de apoio ao raciocínio, estruturação dos testes e documentação. Acredito que saber usar IA de forma estratégica — sabendo o que pedir, como avaliar o resultado e quando questionar — é uma habilidade relevante no QA moderno. Toda análise, decisão de teste e validação dos bugs foi conduzida e revisada por mim.
+
+---
+
+**Douglas Graeff**
+[linkedin.com/in/graeffdouglas](https://linkedin.com/in/graeffdouglas) · [github.com/graeff01](https://github.com/graeff01)
